@@ -1,7 +1,6 @@
 import { mapState } from 'vuex'
 import RootState from '@vue-storefront/store/types/RootState'
-import * as io from 'socket.io-client'
-import {error} from "util";
+import io from 'socket.io-client'
 
 export const PersonalDetails = {
   name: 'PersonalDetails',
@@ -62,7 +61,7 @@ export const PersonalDetails = {
     continueWithJolo () {
       console.log('called jolo.')
 
-      this.getQrCode('f0w2w')
+      this.getQrCode('foo')
         .then((image) => {
           this.$bus.$emit('modal-show', 'modal-jolo-user', null, {image: image})
 
@@ -71,13 +70,10 @@ export const PersonalDetails = {
           this.personalDetails.lastName = 'Krüger';
           this.personalDetails.emailAddress = 'foo@example.com';
           this.sendDataToCheckout()
-        })
-        .catch((error) => {
-          console.log(error)
         });
     },
     getQrCode (randomId: string) {
-      const socket = io('https://demo-sso.jolocom.com', {query: { userId: randomId } })
+      const socket = io('/qr-code', {query: { userId: randomId } })
       return new Promise<string>(resolve => {
         socket.on(randomId, (qrCode: string) => resolve(qrCode))
       })
