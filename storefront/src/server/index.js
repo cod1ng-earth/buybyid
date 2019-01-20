@@ -1,7 +1,13 @@
 // You can extend Vue Storefront server routes by binding to the Express.js (expressApp) in here
 module.exports.registerUserServerRoutes = (expressApp, server) => {
-  require('./robots')(expressApp)
-  require('./jolo/jolo.ts')(expressApp, server)
+
+  return new Promise((resolve, reject) => {
+    require('./robots')(expressApp)
+    const jolo = require('./jolo/jolo.ts')
+    jolo(expressApp, server).then(wallet => resolve(wallet)).catch((err) => {
+      console.error(err)
+    })
+  })
 }
 
 // Use can use dynamic config by using this function below:

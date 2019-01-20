@@ -14,26 +14,33 @@ import { CredentialRequest } from 'jolocom-lib/js/interactionTokens/credentialRe
 import { DbWatcher } from './dbWatcher'
 import { configureRedisClient } from './redis'
 import { configureSockets } from './sockets'
+import { resolve } from 'path';
 
 const { getAsync, setAsync, delAsync } = configureRedisClient()
 const registry = JolocomLib.registries.jolocom.create()
 const vaultedKeyProvider = new JolocomLib.KeyProvider(seed, password)
 
 module.exports = (expressApp: Express, server: http.Server) => {
-  registry.authenticate(vaultedKeyProvider, {derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey, encryptionPass: password})
-  .then(identityWallet => {
-    configureRoutes(expressApp, {setAsync, getAsync, delAsync}, identityWallet, password)
-    configureSockets(server, identityWallet, password, new DbWatcher(getAsync), {getAsync, setAsync, delAsync})   
+  return new Promise( (resolve, reject) => {
+    registry.authenticate(vaultedKeyProvider, {derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey, encryptionPass: password})
+    .then(identityWallet => {
+      configureRoutes(expressApp, {setAsync, getAsync, delAsync}, identityWallet, password)
+      configureSockets(server, identityWallet, password, new DbWatcher(getAsync), {getAsync, setAsync, delAsync}) 
+      resolve(identityWallet)
+  }).catch(e => {
+    console.error(e)
+  })
 })
 }
 
-const configureRoutes = async (app: Express, redisApi: RedisApi, iw: IdentityWallet, password: string) => {
-  const { setAsync, getAsync } = redisApi
+const configureRoutes = (app: Express, redisApi: RedisApi, iw: IdentityWallet, password: string) => {
 
+  const { setAsync, getAsync } = redisApi
   /**
    * An authentication endpoint route for deep linking for demo-sso-mobile;
    */
   app.get('/mobile/credentialRequest', async (req, res, next) => {
+    
     try {
       const credentialRequest = await iw.create.interactionTokens.request.share(
         {
