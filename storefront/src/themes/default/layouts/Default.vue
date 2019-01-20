@@ -12,6 +12,7 @@
       <main-footer/>
       <notification/>
       <sign-up/>
+      <qr-modal/>
       <cookie-notification/>
       <offline-badge/>
       <order-confirmation :orders-data="ordersData" v-if="loadOrderConfirmation"/>
@@ -34,6 +35,7 @@ import Notification from 'theme/components/core/Notification.vue'
 import SignUp from 'theme/components/core/blocks/Auth/SignUp.vue'
 import CookieNotification from 'theme/components/core/CookieNotification.vue'
 import OfflineBadge from 'theme/components/core/OfflineBadge.vue'
+import QrModal from 'theme/components/core/blocks/Checkout/QrModal.vue'
 
 import Head from 'theme/resource/head'
 const SearchPanel = () => import(/* webpackChunkName: "vsf-search-panel" */ 'theme/components/core/blocks/SearchPanel/SearchPanel.vue')
@@ -96,7 +98,8 @@ export default {
     SignUp,
     CookieNotification,
     OfflineBadge,
-    OrderConfirmation
+    OrderConfirmation,
+    QrModal
   }
 }
 </script>

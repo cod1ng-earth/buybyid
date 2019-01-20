@@ -1,5 +1,7 @@
 import { mapState } from 'vuex'
 import RootState from '@vue-storefront/store/types/RootState'
+import * as io from 'socket.io-client'
+import {error} from "util";
 
 export const PersonalDetails = {
   name: 'PersonalDetails',
@@ -56,6 +58,29 @@ export const PersonalDetails = {
     },
     gotoAccount () {
       this.$bus.$emit('modal-show', 'modal-signup')
+    },
+    continueWithJolo () {
+      console.log('called jolo.')
+
+      this.getQrCode('f0w2w')
+        .then((image) => {
+          this.$bus.$emit('modal-show', 'modal-jolo-user', null, {image: image})
+
+          console.log(image)
+          this.personalDetails.firstName = 'Robert';
+          this.personalDetails.lastName = 'Krüger';
+          this.personalDetails.emailAddress = 'foo@example.com';
+          this.sendDataToCheckout()
+        })
+        .catch((error) => {
+          console.log(error)
+        });
+    },
+    getQrCode (randomId: string) {
+      const socket = io('https://demo-sso.jolocom.com', {query: { userId: randomId } })
+      return new Promise<string>(resolve => {
+        socket.on(randomId, (qrCode: string) => resolve(qrCode))
+      })
     }
   },
   updated () {
