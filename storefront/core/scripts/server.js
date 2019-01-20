@@ -1,3 +1,4 @@
+const http = require('http')
 const fs = require('fs')
 const path = require('path')
 const express = require('express')
@@ -7,6 +8,7 @@ let config = require('config')
 const TagCache = require('redis-tag-cache').default
 const utils = require('./server/utils')
 const compile = require('lodash.template')
+
 const compileOptions = {
   escape: /{{([^{][\s\S]+?[^}])}}/g,
   interpolate: /{{{([\s\S]+?)}}}/g
@@ -118,9 +120,10 @@ app.use('/assets', serve(themeRoot + '/assets', true))
 app.use('/service-worker.js', serve('dist/service-worker.js', {
   setHeaders: {'Content-Type': 'text/javascript; charset=UTF-8'}
 }))
+const server = new http.Server(app)
 
 const serverExtensions = require(resolve('src/server'))
-serverExtensions.registerUserServerRoutes(app)
+serverExtensions.registerUserServerRoutes(app, server)
 
 app.post('/invalidate', invalidateCache)
 
@@ -273,7 +276,7 @@ app.get('*', (req, res, next) => {
 let port = process.env.PORT || config.server.port
 const host = process.env.HOST || config.server.host
 const start = () => {
-  app.listen(port, host)
+  server.listen(port, host)
     .on('listening', () => {
       console.log(`Vue Storefront Server started at http://${host}:${port}`)
     })

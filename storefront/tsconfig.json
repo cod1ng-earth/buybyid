@@ -12,6 +12,8 @@
     "resolveJsonModule": false,
     "sourceMap": true,
     "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "types": [
       "reflect-metadata",
       "node"
@@ -19,7 +21,7 @@
     "paths": {
       "core/*": ["core/*"],
       "theme/*": ["src/themes/default/*"], //needs testing with non-default theme!
-      "core/modules/*": ["./core/modules/*"],
+      "core/modules/*": ["./core/modules/*"]
     },
     "lib": ["es2017", "dom"]
   },
